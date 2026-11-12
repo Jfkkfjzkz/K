@@ -1,0 +1,100 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>nobehong LEAK21</title>
+    <style>
+      :root {
+        --bg: #0a0a08; --panel: #0f0e0a; --line: #3d3520;
+        --fg: #d4c9a8; --bright: #f0e6c8; --dim: #9a8d6e;
+        --gold: #d4a017; --gold-light: #f0c850;
+        --sans: "Segoe UI", system-ui, sans-serif;
+        --mono: Consolas, "DejaVu Sans Mono", monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0; min-height: 100%;
+        background: var(--bg); color: var(--fg);
+        font: 16px/1.5 var(--sans);
+      }
+      #brand {
+        padding: 12px 14px; border-bottom: 1px solid var(--line);
+        text-align: center; letter-spacing: 0.18em;
+        color: var(--gold-light); font-weight: 700; text-transform: uppercase;
+      }
+      #brand small { color: #5c5340; letter-spacing: 0.05em; font-weight: 400; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; }
+      h2 {
+        margin: 26px 0 10px; font-size: 13px; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--dim); font-weight: 600;
+      }
+      a.big {
+        display: block; margin: 0 0 10px; padding: 16px 18px;
+        border: 2px solid var(--gold-dark, #8a6a10); border-radius: 6px;
+        background: #14120c; color: var(--gold-light);
+        text-decoration: none; font-size: 19px; font-weight: 700;
+      }
+      a.big small {
+        display: block; margin-top: 6px; font-size: 13px;
+        font-weight: 400; color: var(--dim); letter-spacing: 0;
+      }
+      a.small {
+        display: block; margin: 0 0 8px; padding: 11px 14px;
+        border: 1px solid var(--line); border-radius: 5px;
+        background: #0c0b08; color: var(--fg);
+        text-decoration: none; font-size: 15px;
+      }
+      a.small small { display: block; color: var(--dim); font-size: 12px; }
+      .note {
+        margin: 22px 0 0; padding: 12px 14px;
+        border-left: 3px solid var(--gold); background: #12100a;
+        font: 13px/1.55 var(--mono); color: var(--dim);
+      }
+      .note b { color: var(--gold-light); }
+    </style>
+  </head>
+  <body>
+    <div id="brand">NOBEHONG JAILBREAK <small>LEAK21</small></div>
+
+    <div class="wrap">
+      <h2>14.02 &mdash; start here</h2>
+
+      <a class="big" href="jb5.html?log=1&amp;afterglow=leak&amp;v=21b">
+        Kernel base leak
+        <small>reads the kernel base, writes nothing &mdash; prints VERDICT and BASE</small>
+      </a>
+
+      <a class="small" href="jb5.html?log=1&amp;afterglow=leak&amp;dry=1&amp;v=21b">
+        DRY RUN &mdash; does this page even load?
+        <small>prints the build tag and posts it, then stops before the first syscall</small>
+      </a>
+
+      <h2>14.02 &mdash; other stages</h2>
+
+      <a class="small" href="jb5.html?log=1&amp;afterglow=probe&amp;v=21b">
+        WebKit + kernel version + device probe
+        <small>confirms the primitive and the firmware string, no kernel reads</small>
+      </a>
+
+      <a class="small" href="jb5.html?log=1&amp;stop=primitive&amp;v=21b">
+        WebKit primitive only
+        <small>cheapest test &mdash; stops right after the read primitive is established</small>
+      </a>
+
+      <h2>13.52 / 14.00 &mdash; full chain</h2>
+
+      <a class="small" href="jb.html">
+        Full jailbreak page
+        <small>the working chain, unchanged &mdash; only use this on 13.52 or 14.00</small>
+      </a>
+
+      <div class="note">
+        <b>Before you read any number:</b><br />
+        header must say LEAK21 &middot; log line 2 must say <b>build LEAK21</b><br />
+        leak line must say <b>sprays=126</b><br />
+        If <b>sprays=0</b> &mdash; close the browser app completely, reopen, load this page first.
+      </div>
+    </div>
+  </body>
+</html>

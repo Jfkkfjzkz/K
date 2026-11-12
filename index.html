@@ -1,0 +1,52 @@
+<!doctype html>
+<html class="landing" lang="en" manifest="cache.appcache">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>nobehong jailbreak</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="brand"><b>NOBEHONG JAILBREAK</b></div>
+
+    <div class="shell">
+      <main class="panel">
+        <p class="lede">PS4 kernel exploit &middot; firmware 13.52, 14.00 and 14.02</p>
+
+        <!-- The value has to match a key in launch.js's TARGET. It is `nova`,
+             not `hen`, since the payload file was renamed: with the old value
+             the form built jb.html?undefined and the run page loaded with no
+             payload step at all. -->
+        <form class="pick" id="pick">
+          <label class="opt">
+            <input type="radio" name="payload" value="nova" checked />
+            <span>ps4-hen <small>13.52 &middot; 14.00 &middot; 14.02</small></span>
+          </label>
+          <label class="opt">
+            <input type="radio" name="payload" value="goldhen" />
+            <span>GoldHEN <small>13.52 / 14.00 only &mdash; refused on 14.02</small></span>
+          </label>
+
+          <label class="opt opt-auto">
+            <input type="checkbox" id="auto" checked />
+            <span>autostart</span>
+          </label>
+
+          <button class="btn" type="submit">DEPLOY</button>
+          <p class="count" id="count"></p>
+          <p class="count" id="cache" aria-live="polite"></p>
+        </form>
+
+        <p class="count">
+          On 14.02 use ps4-hen. GoldHEN's image is 14.00's and its step table is
+          a list of 14.00 addresses, so the run page refuses it there before a
+          byte is fetched. 14.02 kernel support upstream:
+          <a href="https://github.com/Scene-Collective/ps4-hen/commit/8c62f6628827055df0dfece1c4d14e045761288b"
+             target="_blank" rel="noopener">8c62f66 &ldquo;Add 14.02 support&rdquo;</a>.
+        </p>
+      </main>
+    </div>
+
+    <script src="launch.js"></script>
+  </body>
+</html>

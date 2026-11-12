@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>recon</title>
+    <style>
+      html, body {
+        margin: 0; padding: 0;
+        background: #0a0a08; color: #d4c9a8;
+        font: 16px/1.5 "Segoe UI", system-ui, sans-serif;
+      }
+      header {
+        padding: 12px 16px; border-bottom: 1px solid #3d3520;
+        color: #f0c850; font-weight: 700; letter-spacing: 0.16em;
+        text-transform: uppercase; font-size: 14px;
+      }
+      main { padding: 16px; }
+      button {
+        display: block; width: 100%; padding: 18px 16px; margin: 0 0 16px;
+        background: #1a170e; color: #f0e6c8; border: 1px solid #8a6a10;
+        border-radius: 6px; font: 700 17px/1.2 "Segoe UI", system-ui, sans-serif;
+        letter-spacing: 0.04em;
+      }
+      button:active { background: #2a2414; }
+      button[disabled] { opacity: 0.45; }
+      #verdict {
+        padding: 14px 16px; margin: 0 0 16px; border-radius: 6px;
+        background: #0f0e0a; border: 1px solid #3d3520;
+        font: 700 20px/1.3 Consolas, monospace; color: #9a8d6e;
+      }
+      #verdict.pass { color: #6fbf73; border-color: #2f5f32; }
+      #verdict.fail { color: #c45c4a; border-color: #6a2f28; }
+      #verdict.run  { color: #f0c850; border-color: #8a6a10; }
+      #log {
+        margin: 0; padding: 12px; border-radius: 6px;
+        background: #0b0a07; border: 1px solid #262214;
+        font: 12px/1.5 Consolas, "DejaVu Sans Mono", monospace;
+        color: #9a8d6e; white-space: pre-wrap; word-break: break-all;
+        min-height: 120px; max-height: 46vh; overflow: auto;
+      }
+      #log b { color: #d4a017; font-weight: 400; }
+      .note { margin: 14px 0 0; font-size: 13px; color: #5c5340; }
+    </style>
+  </head>
+  <body>
+    <header>recon &mdash; webkit only, no kernel</header>
+    <main>
+      <div id="verdict">idle</div>
+      <button id="go">run webkit primitive check</button>
+      <pre id="log"></pre>
+      <p class="note">
+        Reads the browser build string, then runs the userland stage only and
+        stops. Nothing is written to the kernel. Reload the page to run again.
+      </p>
+    </main>
+
+    <script>
+      // Runs before the module. If the module never executes -- old WebKit,
+      // import failure, cached copy -- this is the only thing that will say so.
+      window.__reconBoot = false;
+      window.__reconLog = function (text, strong) {
+        var log = document.getElementById("log");
+        var el = document.createElement(strong ? "b" : "span");
+        el.textContent = text + "\n";
+        log.appendChild(el);
+        log.scrollTop = log.scrollHeight;
+      };
+      window.__reconState = function (name, cls) {
+        var v = document.getElementById("verdict");
+        v.textContent = name;
+        v.className = cls || "";
+      };
+      setTimeout(function () {
+        if (!window.__reconBoot) {
+          window.__reconState("module never executed", "fail");
+          window.__reconLog("the module did not run within 6 s.");
+          window.__reconLog("this WebKit cannot load ES modules from this page.");
+          window.__reconLog("tell the bench: MODULE-DEAD");
+        }
+      }, 6000);
+    </script>
+
+    <script type="module">
+      import { establishPrimitive } from "./core.js?v=recon2";
+
+      window.__reconBoot = true;
+      const log = window.__reconLog;
+      const state = window.__reconState;
+      const go = document.getElementById("go");
+
+      const ua = navigator.userAgent || "";
+      const m = ua.match(/AppleWebKit\/([0-9.]+)/);
+
+      log("userAgent: " + (ua || "unknown"));
+      log("AppleWebKit: " + (m ? m[1] : "unknown"));
+      log("platform: " + (navigator.platform || "unknown"));
+      log("deviceMemory: " + (navigator.deviceMemory || "n/a"));
+      log("hardwareConcurrency: " + (navigator.hardwareConcurrency || "n/a"));
+
+      go.addEventListener("click", async () => {
+        go.disabled = true;
+        state("running", "run");
+        log("");
+        log("core.js loaded, starting userland stage");
+        const started = Date.now();
+        try {
+          const carrier = await establishPrimitive({
+            maxAttempts: 40,
+            onEvent(name, detail) {
+              log("  " + name + (detail ? " " + detail : ""), true);
+            },
+          });
+          state("PRIMITIVE-OK", "pass");
+          log("");
+          log("READ-PRIMITIVE-PASS in " + (Date.now() - started) + " ms");
+          log("attempts: " + carrier.attempts);
+          log("windowBytes: 0x" + carrier.windowBytes.toString(16));
+          log("hostAddress: 0x" + carrier.hostAddress.toString(16));
+          log("holderAddress: 0x" + carrier.holderAddress.toString(16));
+          log("textareaAddress: 0x" + carrier.textareaAddress.toString(16));
+          log("leakSlotAddress: 0x" + carrier.leakSlotAddress.toString(16));
+          log("validate: " + (carrier.validate ? "present" : "missing"));
+          log("");
+          log("firmware offsets asserted: none");
+          log("kernel stage: not attempted");
+        } catch (error) {
+          state("PRIMITIVE-FAIL", "fail");
+          log("");
+          log("error: " + (error && error.message ? error.message : String(error)));
+          log("elapsed: " + (Date.now() - started) + " ms");
+          log("this firmware needs a new userland bug");
+        }
+      });
+    </script>
+  </body>
+</html>
